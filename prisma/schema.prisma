@@ -1,1 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organiser {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  events    Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id                       String      @id @default(cuid())
+  organiserId              String
+  organiser                Organiser   @relation(fields: [organiserId], references: [id])
+
+  title                    String
+  description              String?
+  dateTime                 DateTime
+  city                     String
+  venueLat                 Float?
+  venueLon                 Float?
+  ticketPrice              Int
+  expectedAttendees        Int
+  minParticipants          Int
+
+  coverageWeather          Boolean     @default(true)
+  coverageInstructor       Boolean     @default(true)
+  coverageLowTurnout       Boolean     @default(true)
+  refundPolicyType         RefundPolicyType
+
+  status                   EventStatus @default(SCHEDULED)
+
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+
+  attendees                Attendee[]
+  logs                     EventLog[]
+}
+
+model Attendee {
+  id                  String     @id @default(cuid())
+  eventId             String
+  event               Event      @relation(fields: [eventId], references: [id])
+
+  name                String
+  phone               String
+  email               String?
+
+  hasProtectionAddon  Boolean    @default(false)
+  choice              AttendeeChoice?
+  paymentStatus       PaymentStatus @default(PAID)
+
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+model EventLog {
+  id        String      @id @default(cuid())
+  eventId   String
+  event     Event       @relation(fields: [eventId], references: [id])
+  type      LogType
+  message   String
+  meta      Json?
+  createdAt DateTime    @default(now())
+}
+
+enum EventStatus {
+  SCHEDULED
+  AT_RISK
+  CANCELLED
+  COMPLETED
+}
+
+enum RefundPolicyType {
+  REFUND_ONLY
+  REFUND_OR_RESCHEDULE
+  RESCHEDULE_ONLY
+}
+
+enum AttendeeChoice {
+  REFUND
+  RESCHEDULE
+  KEEP
+}
+
+enum PaymentStatus {
+  PAID
+  PENDING_REFUND
+  REFUNDED
+}
+
+enum LogType {
+  WEATHER_WARNING
+  LOW_TURNOUT_WARNING
+  INSTRUCTOR_CANCEL
+  ORGANISER_DECISION
+  ATTENDEE_NOTIFIED
+}
 

@@ -14,9 +14,9 @@
     "react-dom": "18.2.0",
     "axios": "1.6.8"
   },
-  "devDependencies": {
-    "prisma": "latest",
-    "typescript": "5.0.4"
+"devDependencies": {
+  "prisma": "latest",
+  "typescript": "5.5.4"
   }
 }
 
